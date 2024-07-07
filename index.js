@@ -4,6 +4,7 @@ const port = 4000; //5000번 포트는 airplay에서 사용....
 
 const mongoose = require("mongoose");
 
+//git test
 //버전 업으로 express 에서 사용 가능.
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
