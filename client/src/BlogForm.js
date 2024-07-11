@@ -7,7 +7,7 @@ const BlogForm = ({ postInfo }) => {
   const submit = (e) => {
     alert("title : " + title + "\ncontent : " + content);
     console.log("title : " + title + "\ncontent : " + content);
-    postInfo({ title, content });
+    // postInfo({ title, content });
     setTitle("");
     setContent("");
   };
@@ -15,7 +15,7 @@ const BlogForm = ({ postInfo }) => {
   return (
     <form onSubmit={submit}>
       <div>
-      <h1>간단한 글 등록</h1>
+        <h1>간단한 글 등록</h1>
         <label>제목</label>
         <input
           type="text"
