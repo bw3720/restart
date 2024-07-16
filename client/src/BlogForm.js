@@ -1,3 +1,4 @@
+import axios from "axios";
 import React, { useState } from "react";
 
 const BlogForm = ({ postInfo }) => {
@@ -5,9 +6,18 @@ const BlogForm = ({ postInfo }) => {
   const [content, setContent] = useState(""); //content 선언 및 업데이트 함수
 
   const submit = (e) => {
-    alert("title : " + title + "\ncontent : " + content);
+    // alert("title : " + title + "\ncontent : " + content);
     console.log("title : " + title + "\ncontent : " + content);
     // postInfo({ title, content });
+
+    let body = {
+      title: title,
+      content: content,
+    };
+
+    axios
+      .post("http://localhost:4000/api/post/register", body)
+      .then((response) => console.log(response.status(200)));
     setTitle("");
     setContent("");
   };

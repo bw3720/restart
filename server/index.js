@@ -28,7 +28,7 @@ app.get("/api/hello", (req, res) => {
   res.send("Hello");
 });
 
-app.post("/regi", (req, res) => {
+app.post("/api/post/register", (req, res) => {
   const post = new Post(req.body);
   post
     .save()
