@@ -4,7 +4,7 @@ const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 const saltRounds = 10;
 
-// const jwt = require("jsonwebtoken"); //토큰 생성 (https://www.npmjs.com/package/jsonwebtoken) 사용법
+const jwt = require("jsonwebtoken"); //토큰 생성 (https://www.npmjs.com/package/jsonwebtoken) 사용법
 
 const userSchema = mongoose.Schema({
   name: {
@@ -78,17 +78,17 @@ userSchema.methods.comparePassword = function (plainPassword) {
   });
 };
 
-// userSchema.methods.generateToken = function () {
-//   const user = this;
-//   return new Promise((resolve, reject) => {
-//     const token = jwt.sign({ _id: user._id.toHexString() }, "secretToken");
-//     user.token = token;
-//     user
-//       .save()
-//       .then((user) => resolve(user))
-//       .catch((err) => reject(err));
-//   });
-// };
+userSchema.methods.generateToken = function () {
+  const user = this;
+  return new Promise((resolve, reject) => {
+    var token = jwt.sign(user._id.toHexString(), "secretToken");
+    user.token = token;
+    user
+      .save()
+      .then((user) => resolve(user))
+      .catch((err) => reject(err));
+  });
+};
 // ////////////////
 const User = mongoose.model("User", userSchema); //schema를 model로 감싼다.
 

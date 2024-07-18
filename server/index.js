@@ -5,6 +5,7 @@ const mongoose = require("mongoose");
 const config = require("./config/key"); //key 현재 환경을 읽어와서 mongoDB 접속 주소 어떻게 줄지 정함
 
 const cors = require("cors");
+const cookieParser = require("cookie-parser");
 
 const { Post } = require("./config/models/Post");
 const { User } = require("./config/models/User");
@@ -19,6 +20,7 @@ app.use(cors());
 //버전 업으로 express 에서 사용 가능. 클라이언트에서 오는 데이터를 서버에서 분석
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 
 mongoose
   .connect(config.mongoURI)
@@ -36,7 +38,7 @@ app.post("/api/user/register", (req, res) => {
 });
 
 //로그인
-app.get("/api/user/login", (req, res) => {
+app.post("/api/user/login", (req, res) => {
   //요청된 이메일을 데이터베이스에서 있는지 찾는다.
   User.findOne({ email: req.body.email }).then((user) => {
     if (!user) {
@@ -48,15 +50,28 @@ app.get("/api/user/login", (req, res) => {
 
     //요청된 이메일이 데이터 베이스에 있다면 비밀번호가 맞는 비밀번호인지 확인.
     user.comparePassword(req.body.password).then((isMatch) => {
-      if (!isMatch) { //비밀번호 틀렸을 시
+      if (!isMatch) {
+        //비밀번호 틀렸을 시
         return res.json({
           loginSuccess: false,
           message: "비밀번호가 틀렸습니다.",
         });
       }
+
+      //비밀번호가 맞다면 토근을 생성하기.
+      user
+        .generateToken()
+        .then((user) => {
+          res
+            .cookie("x_auth", user.token)
+            .status(200)
+            .json({ loginSuccess: true, userId: user._id });
+        })
+        .catch((err) => {
+          res.status(400).send(err);
+        });
     });
   });
-  //비밀번호가 맞다면 토근을 생성하기.
 });
 
 //게시물 등록
