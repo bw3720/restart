@@ -7,6 +7,7 @@ const config = require("./config/key"); //key 현재 환경을 읽어와서 mong
 const cors = require("cors");
 
 const { Post } = require("./config/models/Post");
+const { User } = require("./config/models/User");
 
 //CORS 정책
 // proxy
@@ -15,7 +16,7 @@ const { Post } = require("./config/models/Post");
 app.use(cors());
 
 //바디파서 : 클라이언트에서 오는 정보를 서버에서 분석해서 들여올수있게 하는것
-//버전 업으로 express 에서 사용 가능.
+//버전 업으로 express 에서 사용 가능. 클라이언트에서 오는 데이터를 서버에서 분석
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -24,15 +25,47 @@ mongoose
   .then(() => console.log("MongoDB Connected..."))
   .catch((err) => console.log(err));
 
-app.get("/api/hello", (req, res) => {
-  res.send("Hello");
-});
+//회원가입
+app.post("/api/user/register", (req, res) => {
+  const user = new User(req.body);
 
-app.post("/api/post/register", (req, res) => {
-  const post = new Post(req.body);
-  post
+  user
     .save()
     .then((userInfo) => res.status(200).json({ success: true })) //status(200) 통신 성공 이라는 뜻...!
+    .catch((err) => res.json({ success: false, err }));
+});
+
+//로그인
+app.get("/api/user/login", (req, res) => {
+  //요청된 이메일을 데이터베이스에서 있는지 찾는다.
+  User.findOne({ email: req.body.email }).then((user) => {
+    if (!user) {
+      return res.json({
+        loginSuccess: false,
+        message: "제공된 이메일에 해당하는 유저가 없습니다.",
+      });
+    }
+
+    //요청된 이메일이 데이터 베이스에 있다면 비밀번호가 맞는 비밀번호인지 확인.
+    user.comparePassword(req.body.password).then((isMatch) => {
+      if (!isMatch) { //비밀번호 틀렸을 시
+        return res.json({
+          loginSuccess: false,
+          message: "비밀번호가 틀렸습니다.",
+        });
+      }
+    });
+  });
+  //비밀번호가 맞다면 토근을 생성하기.
+});
+
+//게시물 등록
+app.post("/api/post/register", (req, res) => {
+  const post = new Post(req.body);
+
+  post
+    .save()
+    .then((postInfo) => res.status(200).json({ success: true })) //status(200) 통신 성공 이라는 뜻...!
     .catch((err) => res.json({ success: false, err }));
 });
 
